@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" width="240" height="64" role="img" aria-label="Norte">
+  <title>Norte</title>
+  <polygon points="30,6 50,30 10,30" fill="#FF4D00"></polygon>
+  <polygon points="30,54 50,30 10,30" fill="#1A1A1A"></polygon>
+  <text x="64" y="36" font-family="'Space Grotesk', 'Segoe UI', system-ui, sans-serif" font-size="20" font-weight="600" letter-spacing="4" fill="#1A1A1A">NORTE</text>
+</svg>

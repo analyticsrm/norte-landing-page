@@ -1,0 +1,185 @@
+/* ============================================================
+   Norte — Colors & Type
+   Design system tokens for the Norte brand.
+   Space Grotesk loaded via Google Fonts in index.html.
+   ============================================================ */
+
+:root {
+  /* ---------- Primary colors ---------- */
+  --color-grafite:   #1A1A1A;
+  --color-laranja:   #FF4D00;
+  --color-offwhite:  #F8F6F2;
+  --color-branco:    #FFFFFF;
+
+  /* ---------- Neutrals ---------- */
+  --color-neutro-700: #3E3E3B;
+  --color-neutro-500: #8C8882;
+  --color-neutro-300: #D4D0CB;
+  --color-neutro-100: #F0EDE8;
+
+  /* ---------- Orange scale ---------- */
+  --color-laranja-600: #CC3D00;
+  --color-laranja-300: #FF7340;
+  --color-laranja-200: #FFB090;
+  --color-laranja-50:  #FFE8DC;
+
+  /* ---------- Semantic ---------- */
+  --color-erro:    #CC2B2B;
+  --fg-1: var(--color-grafite);
+  --fg-2: var(--color-neutro-700);
+  --fg-3: var(--color-neutro-500);
+  --bg-page:    var(--color-offwhite);
+  --bg-surface: var(--color-branco);
+  --bg-soft:    var(--color-neutro-100);
+  --bg-dark:    var(--color-grafite);
+  --border:     var(--color-neutro-300);
+  --accent:     var(--color-laranja);
+  --accent-hover: var(--color-laranja-600);
+  --focus-ring: var(--color-laranja-50);
+
+  /* ---------- Typography ---------- */
+  --font-sans: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Scale tokens */
+  --text-display:  64px;
+  --text-h1:       48px;
+  --text-h2:       36px;
+  --text-h3:       28px;
+  --text-h4:       22px;
+  --text-body-lg:  18px;
+  --text-body:     16px;
+  --text-body-sm:  14px;
+  --text-label:    12px;
+  --text-caption:  11px;
+
+  /* Weights */
+  --w-regular: 400;
+  --w-medium:  500;
+  --w-semi:    600;
+  --w-bold:    700;
+
+  /* Line-heights */
+  --lh-tight:  1.1;
+  --lh-h:      1.2;
+  --lh-prose:  1.6;
+
+  /* ---------- Spacing (base 8 + +4 complementary) ---------- */
+  --sp-4:   4px;
+  --sp-8:   8px;
+  --sp-12:  12px;
+  --sp-16:  16px;
+  --sp-20:  20px;
+  --sp-24:  24px;
+  --sp-28:  28px;
+  --sp-32:  32px;
+  --sp-36:  36px;
+  --sp-40:  40px;
+  --sp-44:  44px;
+  --sp-48:  48px;
+  --sp-52:  52px;
+  --sp-60:  60px;
+  --sp-64:  64px;
+  --sp-80:  80px;
+  --sp-96:  96px;
+  --sp-128: 128px;
+
+  /* ---------- Radius ---------- */
+  --radius-none: 0px;
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-full: 999px;
+
+  /* ---------- Breakpoints ---------- */
+  --bp-mobile:  768px;
+  --bp-tablet:  1280px;
+  --bp-desktop: 1536px;
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-hover: 200ms;
+  --dur-enter: 500ms;
+}
+
+/* ============================================================
+   Semantic element styles
+   ============================================================ */
+
+html, body {
+  font-family: var(--font-sans);
+  color: var(--fg-1);
+  background: var(--bg-page);
+  font-size: var(--text-body);
+  line-height: var(--lh-prose);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.display, .text-display {
+  font-family: var(--font-sans);
+  font-size: var(--text-display);
+  font-weight: var(--w-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+}
+
+h1, .h1, .text-h1 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h1);
+  font-weight: var(--w-bold);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+h2, .h2, .text-h2 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h2);
+  font-weight: var(--w-semi);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+h3, .h3, .text-h3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h3);
+  font-weight: var(--w-semi);
+  line-height: 1.25;
+}
+
+h4, .h4, .text-h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h4);
+  font-weight: var(--w-semi);
+  line-height: 1.3;
+}
+
+p, .text-body {
+  font-size: var(--text-body);
+  line-height: var(--lh-prose);
+}
+
+.text-body-lg {
+  font-size: var(--text-body-lg);
+  line-height: 1.65;
+}
+
+.text-body-sm {
+  font-size: var(--text-body-sm);
+  line-height: 1.55;
+}
+
+.text-label, .label {
+  font-size: var(--text-label);
+  font-weight: var(--w-semi);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+}
+
+.text-caption, .caption {
+  font-size: var(--text-caption);
+  line-height: 1.4;
+  color: var(--fg-3);
+}
