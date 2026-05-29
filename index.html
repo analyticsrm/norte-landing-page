@@ -63,7 +63,7 @@
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
       scroll-behavior: smooth;
-      overflow-x: hidden;
+      overflow-x: clip;   /* clip (não hidden) p/ não criar scroll-container e quebrar position:sticky */
     }
     a { color: inherit; text-decoration: none; }
     button { font-family: var(--font-sans); cursor: pointer; }
@@ -89,22 +89,22 @@
     ============================================================ */
     .reveal {
       opacity: 0;
-      transform: translateY(48px) scale(0.96);
+      transform: translateY(44px) rotate(-1.2deg) scale(0.96);
       will-change: opacity, transform;
     }
-    .reveal.is-visible { animation: revealIn 900ms var(--ease-out) forwards; }
-    @keyframes revealIn { to { opacity:1; transform: translateY(0) scale(1); } }
+    .reveal.is-visible { animation: revealIn 800ms cubic-bezier(0.22,0.61,0.36,1) forwards; }
+    @keyframes revealIn { to { opacity:1; transform: translateY(0) rotate(0) scale(1); } }
     .reveal[data-delay="1"].is-visible { animation-delay: 100ms; }
     .reveal[data-delay="2"].is-visible { animation-delay: 200ms; }
     .reveal[data-delay="3"].is-visible { animation-delay: 300ms; }
     .reveal[data-delay="4"].is-visible { animation-delay: 400ms; }
 
-    .reveal-l { opacity:0; transform: translateX(-80px) rotate(-1.5deg); }
-    .reveal-l.is-visible { animation: revealLeftIn 900ms var(--ease-out) forwards; }
-    @keyframes revealLeftIn { to { opacity:1; transform: translateX(0) rotate(0); } }
-    .reveal-r { opacity:0; transform: translateX(80px) rotate(1.5deg); }
-    .reveal-r.is-visible { animation: revealRightIn 900ms var(--ease-out) forwards; }
-    @keyframes revealRightIn { to { opacity:1; transform: translateX(0) rotate(0); } }
+    .reveal-l { opacity:0; transform: translateX(-72px) rotate(-3deg) scale(0.95); }
+    .reveal-l.is-visible { animation: revealLeftIn 800ms cubic-bezier(0.22,0.61,0.36,1) forwards; }
+    @keyframes revealLeftIn { to { opacity:1; transform: translateX(0) rotate(0) scale(1); } }
+    .reveal-r { opacity:0; transform: translateX(72px) rotate(3deg) scale(0.95); }
+    .reveal-r.is-visible { animation: revealRightIn 800ms cubic-bezier(0.22,0.61,0.36,1) forwards; }
+    @keyframes revealRightIn { to { opacity:1; transform: translateX(0) rotate(0) scale(1); } }
     .reveal-l[data-delay="1"].is-visible, .reveal-r[data-delay="1"].is-visible { animation-delay:100ms; }
     .reveal-l[data-delay="2"].is-visible, .reveal-r[data-delay="2"].is-visible { animation-delay:200ms; }
     .reveal-l[data-delay="3"].is-visible, .reveal-r[data-delay="3"].is-visible { animation-delay:300ms; }
@@ -118,31 +118,69 @@
 
     /* scroll-driven (modern browsers) */
     @supports (animation-timeline: view()) {
+      /* Base rules (1 class — aplicam o scroll-driven) */
       .scroll-through {
-        opacity:0;
+        opacity:0; transform:none;
         animation: scrollThroughIn linear both, scrollThroughOut linear both;
         animation-timeline: view(), view();
         animation-range: entry 0% cover 22%, exit 30% exit 100%;
       }
       .scroll-through-l {
-        opacity:0;
-        animation: scrollThroughInLeft linear both, scrollThroughOutRight linear both;
+        opacity:0; transform:none;
+        animation: scrollThroughInLeft linear both, scrollThroughExitLeft linear both;
         animation-timeline: view(), view();
-        animation-range: entry 0% cover 28%, exit 30% exit 100%;
+        animation-range: entry 0% cover 28%, exit 0% exit 100%;
       }
       .scroll-through-r {
-        opacity:0;
-        animation: scrollThroughInRight linear both, scrollThroughOutLeft linear both;
+        opacity:0; transform:none;
+        animation: scrollThroughInRight linear both, scrollThroughExitRight linear both;
         animation-timeline: view(), view();
-        animation-range: entry 0% cover 28%, exit 30% exit 100%;
+        animation-range: entry 0% cover 28%, exit 0% exit 100%;
+      }
+      /* Regras .is-visible (2 classes — mesma especificidade que .reveal.is-visible,
+         mas declaradas depois, então ganham no cascade e restauram o view() timeline
+         que o shorthand animation de revealIn teria resetado) */
+      .scroll-through.is-visible {
+        animation: scrollThroughIn linear both, scrollThroughOut linear both;
+        animation-timeline: view(), view();
+        animation-range: entry 0% cover 22%, exit 30% exit 100%;
+      }
+      .scroll-through-l.is-visible {
+        animation: scrollThroughInLeft linear both, scrollThroughExitLeft linear both;
+        animation-timeline: view(), view();
+        animation-range: entry 0% cover 28%, exit 0% exit 100%;
+      }
+      .scroll-through-r.is-visible {
+        animation: scrollThroughInRight linear both, scrollThroughExitRight linear both;
+        animation-timeline: view(), view();
+        animation-range: entry 0% cover 28%, exit 0% exit 100%;
       }
     }
-    @keyframes scrollThroughIn    { from { opacity:0; transform: translateY(120px) scale(0.85); } to { opacity:1; transform:translateY(0) scale(1); } }
-    @keyframes scrollThroughOut   { from { opacity:1; transform:translateY(0) scale(1); } to { opacity:0; transform: translateY(-80px) scale(0.92); } }
-    @keyframes scrollThroughInLeft  { from { opacity:0; transform: translateX(-220px) rotate(-3deg) scale(0.9); } to { opacity:1; transform:translateX(0) rotate(0) scale(1); } }
-    @keyframes scrollThroughInRight { from { opacity:0; transform: translateX(220px) rotate(3deg) scale(0.9);  } to { opacity:1; transform:translateX(0) rotate(0) scale(1); } }
-    @keyframes scrollThroughOutLeft  { from { opacity:1; transform:translateX(0) rotate(0); } to { opacity:0; transform: translateX(-140px) rotate(-2deg); } }
-    @keyframes scrollThroughOutRight { from { opacity:1; transform:translateX(0) rotate(0); } to { opacity:0; transform:  translateX(140px) rotate(2deg); } }
+    @keyframes scrollThroughIn {
+      from { opacity:0; transform: translateY(100px) rotate(-2deg) scale(0.86); }
+      to   { opacity:1; transform:translateY(0) rotate(0) scale(1); }
+    }
+    @keyframes scrollThroughOut {
+      from { opacity:1; transform:translateY(0) scale(1) rotate(0); }
+      to   { opacity:0; transform:translateY(-56px) scale(0.9) rotate(-1.5deg); }
+    }
+    @keyframes scrollThroughInLeft {
+      from { opacity:0; transform: translateX(-200px) rotate(-7deg) scale(0.86); }
+      to   { opacity:1; transform:translateX(0) rotate(0) scale(1); }
+    }
+    @keyframes scrollThroughInRight {
+      from { opacity:0; transform: translateX(200px) rotate(7deg) scale(0.86); }
+      to   { opacity:1; transform:translateX(0) rotate(0) scale(1); }
+    }
+    /* Saída diagonal descontraída — cada card voa pro seu lado */
+    @keyframes scrollThroughExitLeft {
+      from { opacity:1; transform:translateX(0) translateY(0) rotate(0deg) scale(1); }
+      to   { opacity:0; transform:translateX(-340px) translateY(60px) rotate(-14deg) scale(0.76); }
+    }
+    @keyframes scrollThroughExitRight {
+      from { opacity:1; transform:translateX(0) translateY(0) rotate(0deg) scale(1); }
+      to   { opacity:0; transform:translateX(340px) translateY(60px) rotate(14deg) scale(0.76); }
+    }
 
     /* word stagger */
     .split-words { display: inline; }
@@ -206,13 +244,19 @@
       display:inline-flex; align-items:center; gap:10px;
       font-family:var(--font-sans); font-weight:600; font-size:15px;
       border:0; border-radius:var(--radius-full); padding:16px 28px;
-      transition: background 120ms, color 120ms, transform 120ms;
+      transition: background 150ms, color 150ms, border-color 150ms,
+                  transform 260ms cubic-bezier(0.34,1.56,0.64,1),
+                  box-shadow 260ms var(--ease-out);
       cursor:pointer; letter-spacing:-.005em;
     }
     .btn.primary { background:var(--color-laranja); color:#fff; }
-    .btn.primary:hover { background:var(--color-laranja-600); transform:translateY(-2px) scale(1.03); }
+    .btn.primary:hover {
+      background:var(--color-laranja-600);
+      transform:translateY(-3px) scale(1.04);
+      box-shadow: 0 8px 28px rgba(255,77,0,.35), 0 2px 8px rgba(255,77,0,.2);
+    }
     .btn.secondary { background:transparent; color:var(--fg-1); border:.5px solid var(--color-grafite); }
-    .btn.secondary:hover { background:var(--color-grafite); color:#fff; transform:translateY(-2px); }
+    .btn.secondary:hover { background:var(--color-laranja); color:#fff; border-color:var(--color-laranja); transform:translateY(-2px); }
     .btn-arrow { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; transition:transform 120ms; }
     .btn:hover .btn-arrow { transform:translateX(3px); }
 
@@ -252,11 +296,29 @@
     ============================================================ */
     .hero {
       position:relative; min-height:100vh; width:100%;
-      overflow:hidden; background:var(--color-grafite);
+      overflow:hidden;
+      /* Fundo do hero faz grafite → transparente, revelando o offwhite da página */
+      background: linear-gradient(to bottom,
+        var(--color-grafite) 0%,
+        var(--color-grafite) 76%,
+        rgba(26,26,26,.6) 87%,
+        rgba(26,26,26,.12) 95%,
+        transparent 100%);
     }
     .hero-video-wrap {
       position:absolute; inset:0; z-index:0; overflow:hidden;
       background:var(--color-grafite); will-change:transform;
+      /* Mask só no wrap: vídeo some, scroll-cue fica fora e totalmente visível */
+      -webkit-mask-image: linear-gradient(to bottom,
+        black 0%, black 76%,
+        rgba(0,0,0,.65) 87%,
+        rgba(0,0,0,.18) 95%,
+        transparent 100%);
+      mask-image: linear-gradient(to bottom,
+        black 0%, black 76%,
+        rgba(0,0,0,.65) 87%,
+        rgba(0,0,0,.18) 95%,
+        transparent 100%);
     }
     .hero-video {
       position:absolute; inset:0; width:100%; height:100%;
@@ -270,13 +332,7 @@
         rgba(26,26,26,.15) 55%, rgba(26,26,26,.45) 100%);
       pointer-events:none;
     }
-    .hero-fade-bottom {
-      position:absolute; left:0; right:0; bottom:0; height:180px;
-      z-index:1; pointer-events:none;
-      background: linear-gradient(to bottom,
-        rgba(248,246,242,0) 0%, rgba(248,246,242,.35) 55%,
-        rgba(248,246,242,.85) 85%, var(--bg-page) 100%);
-    }
+    .hero-fade-bottom { display: none; }
     .hero-content {
       position:relative; z-index:2;
       padding-top: calc(8rem - 12px); padding-bottom:160px;
@@ -305,17 +361,17 @@
     }
     .hero-meta-item .l {
       font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-      color:var(--color-neutro-500); font-weight:600;
+      color:rgba(248,246,242,.65); font-weight:600;
     }
     .scroll-cue {
       position:absolute; bottom:32px; left:50%; transform:translateX(-50%);
       z-index:3; font-size:10px; text-transform:uppercase; letter-spacing:.15em;
-      color:var(--color-neutro-500); font-weight:600;
+      color:var(--color-grafite); font-weight:600;
       display:flex; flex-direction:column; align-items:center; gap:10px;
     }
     .scroll-cue::after {
       content:""; width:1px; height:32px;
-      background:linear-gradient(to bottom, var(--color-neutro-700), transparent);
+      background:linear-gradient(to bottom, var(--color-grafite), transparent);
       animation: cueDrop 2.4s var(--ease-out) infinite;
     }
     @keyframes cueDrop {
@@ -330,7 +386,7 @@
     ============================================================ */
     .marquee {
       background:var(--bg-page); overflow:hidden; padding:24px 0;
-      border-top:.5px solid var(--border); border-bottom:.5px solid var(--border);
+      border-bottom:.5px solid var(--border);
     }
     .marquee-track {
       display:flex; gap:64px; white-space:nowrap;
@@ -359,9 +415,15 @@
       border-radius:var(--radius-2xl); padding:48px;
       display:flex; flex-direction:column; gap:24px;
       min-height:540px;
-      transition: transform 200ms var(--ease-out), border-color 120ms;
+      transition: transform 320ms cubic-bezier(0.34,1.56,0.64,1),
+                  border-color 150ms var(--ease-out),
+                  box-shadow 320ms var(--ease-out);
     }
-    .service-card:hover { border-color:var(--color-grafite); transform:translateY(-6px); }
+    .service-card:hover {
+      border-color:var(--color-neutro-300);
+      transform:translateY(-12px) rotate(-0.5deg);
+      box-shadow: 0 24px 64px rgba(26,26,26,.09), 0 4px 16px rgba(26,26,26,.05);
+    }
     .service-card .number { font-size:13px; font-weight:600; color:var(--fg-3); letter-spacing:.08em; }
     .service-card h3 { font-size:36px; font-weight:600; letter-spacing:-.02em; line-height:1.1; color:var(--fg-1); }
     .service-card p.lead { font-size:17px; line-height:1.6; color:var(--fg-2); }
@@ -409,7 +471,11 @@
       border-bottom:.5px solid var(--color-neutro-700);
       display:flex; flex-direction:column; gap:16px; min-height:280px;
     }
-    .process-step .num { font-size:13px; font-weight:600; color:var(--color-laranja); letter-spacing:.08em; }
+    .process-step .step-tri {
+      width:10px; height:10px; flex-shrink:0;
+      background:var(--color-laranja);
+      clip-path:polygon(0 0, 100% 50%, 0 100%);
+    }
     .process-step h4 { font-size:22px; font-weight:600; letter-spacing:-.01em; color:var(--color-offwhite); }
     .process-step p  { font-size:14px; line-height:1.55; color:var(--color-neutro-300); }
     .process-step .when { margin-top:auto; font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--color-neutro-500); font-weight:600; }
@@ -426,9 +492,15 @@
       background:var(--bg-surface); border:.5px solid var(--border);
       border-radius:var(--radius-2xl); padding:32px;
       display:flex; flex-direction:column; gap:20px; min-height:420px;
-      transition: transform 200ms var(--ease-out), border-color 120ms;
+      transition: transform 320ms cubic-bezier(0.34,1.56,0.64,1),
+                  border-color 150ms var(--ease-out),
+                  box-shadow 320ms var(--ease-out);
     }
-    .case-card:hover { border-color:var(--color-grafite); transform:translateY(-6px); }
+    .case-card:hover {
+      border-color:var(--color-grafite);
+      transform:translateY(-10px) rotate(0.5deg);
+      box-shadow: 0 20px 56px rgba(26,26,26,.08), 0 3px 12px rgba(26,26,26,.04);
+    }
     .case-card .meta-row {
       display:flex; justify-content:space-between; align-items:center;
       font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:600; color:var(--fg-3);
@@ -446,21 +518,67 @@
     .case-card .case-footer .name { font-size:15px; font-weight:600; color:var(--fg-1); }
     .case-card .case-footer .desc { font-size:13px; color:var(--fg-3); line-height:1.5; }
 
+    /* Números (Cases) — efeito de PIN:
+       a Processo (escura) fica fixa preenchendo a tela ("página parada")
+       e a Cases sobe por cima dela ("a seção se move"); quando a Cases
+       cobre a tela, a Processo libera e o site segue normal para a Stack.
+       - .overlap-stage: bloco de referência do sticky + contexto de
+         empilhamento (isolation) p/ a Processo fixa não vazar nas seções
+         seguintes.
+       - Processo: sticky topo, min 100vh (preenche a tela), z-index 1.
+       - Cases: relativa z-index 2 (passa POR CIMA), 100vh, fundo opaco.
+       - O blur do card (entra borrado, foca no centro, sai nítido) é
+         controlado em useNumbersCard. Mobile (<=768px): sem pin. */
+    .overlap-stage { position:relative; isolation:isolate; }
+    .overlap-stage #processo {
+      position:sticky; top:0;
+      min-height:100vh;
+      z-index:1;
+    }
+    .numbers-section {
+      position:relative; z-index:2;
+      min-height:100vh;
+      background:transparent;   /* sobe SÓ o card sobre a Processo escura; o offwhite volta na Stack */
+      display:flex; align-items:center;
+      padding:80px 40px;
+    }
+    @media (max-width:768px) {
+      .overlap-stage #processo { position:static; min-height:0; }
+      .numbers-section { position:static; min-height:0; display:block; padding:0 16px 80px; }
+    }
+    .numbers-card {
+      width:100%; max-width:1360px; margin:0 auto;
+      background:var(--color-branco);
+      border-radius:28px;
+      box-shadow:0 40px 90px -28px rgba(26,26,26,.38),
+                 0 12px 36px -16px rgba(26,26,26,.18);
+      will-change:filter;
+      filter:blur(14px);   /* estado inicial; JS assume no scroll */
+    }
+    .numbers-card-inner { padding:96px 72px; }
+    @media (max-width:920px) { .numbers-card-inner { padding:72px 40px; } }
+    @media (max-width:768px) { .numbers-card-inner { padding:56px 24px; } .numbers-card { border-radius:20px; } }
+
     /* ============================================================
        Stack
     ============================================================ */
     .stack-grid {
-      display:grid; grid-template-columns:repeat(4,1fr); gap:.5px;
-      margin-top:64px; background:var(--border); border:.5px solid var(--border);
+      display:grid; grid-template-columns:repeat(4,1fr);
+      margin-top:64px; gap:8px;
     }
     @media (max-width:920px) { .stack-grid { grid-template-columns:repeat(3,1fr); } }
     @media (max-width:600px) { .stack-grid { grid-template-columns:repeat(2,1fr); } }
     .stack-cell {
       padding:36px 24px; display:flex; flex-direction:column; align-items:flex-start;
       gap:12px; min-height:160px; background:var(--bg-page);
-      transition:background 120ms;
+      border-radius:var(--radius-xl);
+      border: .5px solid var(--border);
+      transition: background 150ms var(--ease-out),
+                  border-color 150ms var(--ease-out),
+                  transform 280ms cubic-bezier(0.34,1.56,0.64,1);
     }
-    .stack-cell:hover { background:var(--bg-surface); }
+    .stack-cell:hover { background:var(--bg-surface); border-color:var(--color-neutro-300); transform:translateY(-3px); }
+    .stack-cell.lit   { background:var(--bg-surface); }
     .stack-cell .icon { width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:var(--fg-1); }
     .stack-cell .name { font-size:16px; font-weight:600; color:var(--fg-1); letter-spacing:-.01em; }
     .stack-cell .cat  { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--fg-3); margin-top:auto; font-weight:600; }
@@ -468,6 +586,33 @@
     /* ============================================================
        Sobre
     ============================================================ */
+    /* O vídeo cobre todo o fundo da seção, ancorado embaixo à direita.
+       Sem blend e sem fundo escuro: uma máscara radial mostra o vídeo
+       em cor cheia só no canto inferior direito (o brilho) e o dissolve
+       em direção ao topo/esquerda, revelando o offwhite da seção. Assim
+       a seção permanece clara/on-brand e o texto mantém contraste. */
+    /* A máscara fica no wrapper (não transformado); o zoom no vídeo é
+       ancorado no canto inferior direito para o laranja dominar e
+       empurrar o azul pra fora da área visível. */
+    .sobre-video-wrap {
+      position:absolute; inset:0;
+      z-index:0;
+      overflow:hidden;
+      pointer-events:none;
+      -webkit-mask-image: radial-gradient(ellipse 66% 72% at 100% 100%,
+        #000 0%, #000 20%, rgba(0,0,0,.5) 46%, transparent 68%);
+      mask-image: radial-gradient(ellipse 66% 72% at 100% 100%,
+        #000 0%, #000 20%, rgba(0,0,0,.5) 46%, transparent 68%);
+    }
+    .sobre-deco-video {
+      display:block;
+      width:100%; height:100%;
+      object-fit:cover;
+      object-position:right bottom;
+      transform:scale(1.5);
+      transform-origin:100% 100%;
+    }
+    #sobre .container { position:relative; z-index:1; }
     .about-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:80px; align-items:start; }
     @media (max-width:920px) { .about-grid { grid-template-columns:1fr; gap:40px; } }
     .about-statement {
@@ -491,9 +636,12 @@
     .testimonial {
       background:var(--color-neutro-100); border-radius:var(--radius-2xl); padding:36px;
       display:flex; flex-direction:column; gap:28px;
-      transition: transform 200ms var(--ease-out);
+      transition: transform 320ms cubic-bezier(0.34,1.56,0.64,1), box-shadow 320ms var(--ease-out);
     }
-    .testimonial:hover { transform:translateY(-6px); }
+    .testimonial:hover {
+      transform:translateY(-8px) rotate(-0.4deg);
+      box-shadow: 0 16px 48px rgba(26,26,26,.07);
+    }
     .testimonial .quote { font-size:19px; line-height:1.45; color:var(--fg-1); font-weight:400; letter-spacing:-.01em; }
     .testimonial .quote-mark { font-family:'Georgia',serif; font-size:48px; line-height:0; color:var(--color-laranja); display:block; margin-bottom:8px; margin-top:12px; }
     .testimonial .person { display:flex; align-items:center; gap:14px; }
@@ -626,13 +774,15 @@
         }
         const io = new IntersectionObserver((entries) => {
           entries.forEach(e => {
-            if (e.isIntersecting) e.target.classList.add('is-visible');
-            else e.target.classList.remove('is-visible');
+            if (e.isIntersecting) {
+              e.target.classList.add('is-visible');
+              io.unobserve(e.target);
+            }
           });
         }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
         els.forEach(el => io.observe(el));
         return () => io.disconnect();
-      });
+      }, []);
     }
 
     function useCounter(ref, target, { duration = 1600, suffix = '', prefix = '', decimals = 0 } = {}) {
@@ -678,6 +828,385 @@
       return scrolled;
     }
 
+    function useTestimonialsParallax() {
+      useEffect(() => {
+        const section = document.getElementById('depoimentos');
+        if (!section) return;
+        const cards = Array.from(section.querySelectorAll('.testimonial'));
+        if (cards.length === 0) return;
+
+        cards.forEach(card => { card.style.opacity = '0'; card.style.transform = 'none'; });
+
+        const entered = new Set();
+        const grid = section.querySelector('.testimonials-grid') || section;
+
+        // Entrada: fade escalonado
+        const entranceIO = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            cards.forEach((card, i) => {
+              if (entered.has(card)) return;
+              entered.add(card);
+              setTimeout(() => {
+                card.style.transition = 'opacity 600ms cubic-bezier(0.22,0.61,0.36,1)';
+                card.style.opacity    = '1';
+                setTimeout(() => { card.style.transition = 'none'; }, 650);
+              }, i * 110);
+            });
+            entranceIO.disconnect();
+          });
+        }, { threshold: 0.05 });
+
+        entranceIO.observe(grid);
+
+        // Saída: colapso para dentro + afunda
+        // Card 0 (esq) → direita + baixo + gira CW
+        // Card 1 (centro) → reto para baixo, escala menor
+        // Card 2 (dir) → esquerda + baixo + gira CCW
+        const EXITS = [
+          e => ({ x:  e*220, y:  e*100, rot:  e*14, sc: 1-e*0.28 }),
+          e => ({ x:  0,     y:  e*300, rot:  0,     sc: 1-e*0.35 }),
+          e => ({ x: -e*220, y:  e*100, rot: -e*14, sc: 1-e*0.28 }),
+        ];
+
+        const update = () => {
+          if (entered.size === 0) return;
+          const rect = section.getBoundingClientRect();
+          const scrolledPast = -rect.top;
+          const exitStart = rect.height * 0.12;
+          const exitRange = rect.height * 0.44;
+          const t = Math.min(1, Math.max(0, (scrolledPast - exitStart) / exitRange));
+
+          cards.forEach((card, i) => {
+            if (!entered.has(card)) return;
+            if (t > 0) {
+              const e = t * t * (3 - 2 * t);
+              const { x, y, rot, sc } = EXITS[i](e);
+              const op = Math.max(0, 1 - e * 1.8);
+              card.style.transform = `translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${sc})`;
+              card.style.opacity   = String(op);
+            } else {
+              card.style.transform = 'none';
+              card.style.opacity   = '1';
+            }
+          });
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        update();
+        return () => { entranceIO.disconnect(); window.removeEventListener('scroll', onScroll); };
+      }, []);
+    }
+
+    function useStackParallax() {
+      useEffect(() => {
+        const section = document.getElementById('stack');
+        if (!section) return;
+        const cells = Array.from(section.querySelectorAll('.stack-cell'));
+        if (cells.length === 0) return;
+
+        // Inicial: invisível, fundo da página (aparência "transparente")
+        cells.forEach(cell => { cell.style.opacity = '0'; });
+
+        const entered = new Set();
+        const grid = section.querySelector('.stack-grid') || section;
+
+        // Entrada: fade simples por coluna — fundo permanece igual à página
+        const entranceIO = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            cells.forEach((cell, i) => {
+              if (entered.has(cell)) return;
+              entered.add(cell);
+              setTimeout(() => {
+                cell.style.transition = 'opacity 400ms cubic-bezier(0.22,0.61,0.36,1)';
+                cell.style.opacity    = '1';
+                setTimeout(() => { cell.style.transition = ''; cell.style.opacity = ''; }, 450);
+              }, (i % 4) * 80);
+            });
+            entranceIO.disconnect();
+          });
+        }, { threshold: 0.05 });
+
+        entranceIO.observe(grid);
+
+        // Saída: "acende" (fundo offwhite→branco) + voa por linha + fade
+        // Ao rolar de volta, fundo retorna transparente
+        const update = () => {
+          if (entered.size === 0) return;
+          const rect = section.getBoundingClientRect();
+          const scrolledPast = -rect.top;
+          const exitStart = rect.height * 0.12;
+          const exitRange = rect.height * 0.40;
+          const t = Math.min(1, Math.max(0, (scrolledPast - exitStart) / exitRange));
+
+          cells.forEach((cell, i) => {
+            if (!entered.has(cell)) return;
+            if (t > 0) {
+              const e = t * t * (3 - 2 * t);
+              // Acende: bg vai de offwhite → branco nos primeiros 30% da saída
+              const litE = Math.min(1, e / 0.3);
+              const r = Math.round(248 + 7  * litE);
+              const g = Math.round(246 + 9  * litE);
+              const b = Math.round(242 + 13 * litE);
+              // Voa por linha (cima/baixo)
+              const row = Math.floor(i / 4);
+              const dir = row === 0 ? -1 : 1;
+              const y   = dir * e * 280;
+              const rot = dir * e * 9;
+              const sc  = 1 - e * 0.22;
+              // Fade começa só depois do acendimento (e > 0.5)
+              const op  = Math.max(0, 1 - Math.max(0, e - 0.5) * 3);
+              cell.style.transition = 'none';
+              cell.style.background = `rgb(${r},${g},${b})`;
+              cell.style.transform  = `translateY(${y}px) rotate(${rot}deg) scale(${sc})`;
+              cell.style.opacity    = String(op);
+            } else {
+              // Restaura: limpa tudo → CSS retoma fundo da página
+              cell.style.transition = '';
+              cell.style.background = '';
+              cell.style.transform  = '';
+              cell.style.opacity    = '';
+            }
+          });
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        update();
+        return () => { entranceIO.disconnect(); window.removeEventListener('scroll', onScroll); };
+      }, []);
+    }
+
+    // Números (Cases): a seção desliza por cima da Processo fixa (pin via
+    // CSS sticky). Aqui só controlamos o BLUR do card: entra borrado,
+    // foca conforme o card chega ao centro da tela, e sai nítido.
+    function useNumbersCard() {
+      useEffect(() => {
+        const card = document.querySelector('.numbers-card');
+        if (!card) return;
+
+        const MAX_BLUR = 14;   // px de blur no início
+
+        const update = () => {
+          const r = card.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          const center = r.top + r.height / 2;
+          const startC = vh * 1.15;   // centro aqui (abaixo) → borrado
+          const endC   = vh * 0.60;   // centro perto do meio → nítido
+          let t = (startC - center) / (startC - endC);
+          t = Math.min(1, Math.max(0, t));
+          const e = t * t * (3 - 2 * t);          // smoothstep
+          const blur = (1 - e) * MAX_BLUR;
+          card.style.filter = blur > 0.06 ? `blur(${blur.toFixed(2)}px)` : 'none';
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
+        return () => {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', onScroll);
+        };
+      }, []);
+    }
+
+    // Saída em leque dos 3 cards da Cases quando a seção está saindo de
+    // vista (card já passou do centro e sobe para fora). Reaproveita o
+    // efeito antigo de leque (esq-baixo / cima / dir-baixo).
+    function useCasesCardsExit() {
+      useEffect(() => {
+        const numCard = document.querySelector('.numbers-card');
+        if (!numCard) return;
+        const cards = Array.from(numCard.querySelectorAll('.case-card'));
+        if (cards.length === 0) return;
+
+        const EXITS = [
+          e => ({ x: -e*340, y:  e*60,  rot: -e*13, sc: 1-e*0.24 }),
+          e => ({ x:  0,     y: -e*300, rot:  e*5,  sc: 1-e*0.20 }),
+          e => ({ x:  e*340, y:  e*60,  rot:  e*13, sc: 1-e*0.24 }),
+        ];
+
+        const update = () => {
+          const r = numCard.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          const center = r.top + r.height / 2;
+          const startC = vh * 0.45;    // card pouco acima do centro → começa a sair
+          const endC   = vh * -0.15;   // card quase fora pelo topo → totalmente em leque
+          let t = (startC - center) / (startC - endC);
+          t = Math.min(1, Math.max(0, t));
+          const e = t * t * (3 - 2 * t);
+
+          cards.forEach((card, i) => {
+            if (e > 0) {
+              const f = EXITS[i] ? EXITS[i](e) : EXITS[0](e);
+              card.style.transition = 'none';
+              card.style.transform  = `translateX(${f.x}px) translateY(${f.y}px) rotate(${f.rot}deg) scale(${f.sc})`;
+              card.style.opacity    = String(Math.max(0, 1 - e*1.8));
+            } else {
+              card.style.transform  = '';   // limpa inline → CSS (e :hover) assume
+              card.style.opacity    = '';
+              card.style.transition = '';
+            }
+          });
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll, { passive: true });
+        update();
+        return () => {
+          window.removeEventListener('scroll', onScroll);
+          window.removeEventListener('resize', onScroll);
+        };
+      }, []);
+    }
+
+    function useProcessParallax() {
+      useEffect(() => {
+        const section = document.getElementById('processo');
+        if (!section) return;
+        const cards = Array.from(section.querySelectorAll('.process-step'));
+        if (cards.length === 0) return;
+
+        // Estado inicial: invisível
+        cards.forEach(card => { card.style.opacity = '0'; card.style.transform = 'none'; });
+
+        const entered = new Set();
+        const grid = section.querySelector('.process-grid') || section;
+
+        // Entrada: fade escalonado quando 20% do grid está visível
+        const entranceIO = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            cards.forEach((card, i) => {
+              if (entered.has(card)) return;
+              entered.add(card);
+              setTimeout(() => {
+                card.style.transition = 'opacity 600ms cubic-bezier(0.22,0.61,0.36,1)';
+                card.style.opacity = '1';
+                setTimeout(() => { card.style.transition = 'none'; }, 650);
+              }, i * 100);
+            });
+            entranceIO.disconnect();
+          });
+        }, { threshold: 0.05 });
+
+        entranceIO.observe(grid);
+
+        // Saída: alternado cima/baixo. Como a Processo agora fica FIXA (pin),
+        // o gatilho não é mais o scroll dela, e sim a chegada do card da Cases:
+        // os cards "saem do caminho" quando o card está quase cobrindo o grid.
+        const update = () => {
+          if (entered.size === 0) return;
+          const numCard = document.querySelector('.numbers-card');
+          if (!numCard) return;
+          const cardTop = numCard.getBoundingClientRect().top;
+          const gr = grid.getBoundingClientRect();
+          const startAt = gr.bottom + gr.height * 0.25;  // card quase chegando no grid
+          const endAt   = gr.top;                        // card cobriu o grid
+          const t = Math.min(1, Math.max(0, (startAt - cardTop) / (startAt - endAt)));
+
+          cards.forEach((card, i) => {
+            if (!entered.has(card)) return;
+            if (t > 0) {
+              const e = t * t * (3 - 2 * t);
+              const dir = i % 2 === 0 ? -1 : 1; // par=cima, ímpar=baixo
+              const y   = dir * e * 280;
+              const rot = dir * e * 9;
+              const sc  = 1 - e * 0.22;
+              const op  = Math.max(0, 1 - e * 1.8);
+              card.style.transform = `translateY(${y}px) rotate(${rot}deg) scale(${sc})`;
+              card.style.opacity   = String(op);
+            } else {
+              card.style.transform = 'none';
+              card.style.opacity   = '1';
+            }
+          });
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        update();
+        return () => { entranceIO.disconnect(); window.removeEventListener('scroll', onScroll); };
+      }, []);
+    }
+
+    function useServiceCardParallax() {
+      useEffect(() => {
+        const section = document.getElementById('servicos');
+        if (!section) return;
+        const leftCard  = section.querySelector('[data-exit="left"]');
+        const rightCard = section.querySelector('[data-exit="right"]');
+        if (!leftCard && !rightCard) return;
+
+        // Estado inicial: invisível, sem deslocamento lateral (entrada é só fade)
+        if (leftCard)  { leftCard.style.opacity  = '0'; leftCard.style.transform = 'none'; }
+        if (rightCard) { rightCard.style.opacity = '0'; rightCard.style.transform = 'none'; }
+
+        const entered = new Set();
+
+        // Entrada: fade simples quando 65% do card está visível
+        const entranceIO = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting || entered.has(entry.target)) return;
+            const card = entry.target;
+            entered.add(card);
+            const delay = card === leftCard ? 0 : 180;
+            setTimeout(() => {
+              card.style.transition = 'opacity 700ms cubic-bezier(0.22,0.61,0.36,1)';
+              card.style.opacity    = '1';
+              setTimeout(() => { card.style.transition = 'none'; }, 750);
+            }, delay);
+            entranceIO.unobserve(card);
+          });
+        }, { threshold: 0.65 });
+
+        if (leftCard)  entranceIO.observe(leftCard);
+        if (rightCard) entranceIO.observe(rightCard);
+
+        // Saída: inicia só após 40% da seção ter saído pelo topo (evita saída prematura)
+        const update = () => {
+          if (entered.size === 0) return;
+          const rect = section.getBoundingClientRect();
+          const scrolledPast = -rect.top;
+          const exitStart = rect.height * 0.40;
+          const exitRange = rect.height * 0.42;
+          const t = Math.min(1, Math.max(0, (scrolledPast - exitStart) / exitRange));
+
+          if (t > 0) {
+            const e = t * t * (3 - 2 * t);
+            const x = e * 360, y = e * 60, rot = e * 13;
+            const sc = 1 - e * 0.24, op = Math.max(0, 1 - e * 1.8);
+            if (leftCard && entered.has(leftCard)) {
+              leftCard.style.transform  = `translateX(${-x}px) translateY(${y}px) rotate(${-rot}deg) scale(${sc})`;
+              leftCard.style.opacity    = String(op);
+            }
+            if (rightCard && entered.has(rightCard)) {
+              rightCard.style.transform  = `translateX(${x}px) translateY(${y}px) rotate(${rot}deg) scale(${sc})`;
+              rightCard.style.opacity    = String(op);
+            }
+          } else {
+            if (leftCard  && entered.has(leftCard))  { leftCard.style.transform  = 'none'; leftCard.style.opacity  = '1'; }
+            if (rightCard && entered.has(rightCard)) { rightCard.style.transform = 'none'; rightCard.style.opacity = '1'; }
+          }
+        };
+
+        let raf = 0;
+        const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { update(); raf = 0; }); };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        update();
+        return () => { entranceIO.disconnect(); window.removeEventListener('scroll', onScroll); };
+      }, []);
+    }
+
     function ScrollProgress() {
       const ref = useRef(null);
       useEffect(() => {
@@ -699,8 +1228,10 @@
       useEffect(() => {
         const el = ref.current; if (!el) return;
         const io = new IntersectionObserver(([e]) => {
-          if (e.isIntersecting) el.classList.add('is-visible');
-          else el.classList.remove('is-visible');
+          if (e.isIntersecting) {
+            el.classList.add('is-visible');
+            io.disconnect();
+          }
         }, { threshold: 0.2, rootMargin: '0px 0px -10% 0px' });
         io.observe(el);
         return () => io.disconnect();
@@ -709,6 +1240,7 @@
       const renderNode = (node, key) => {
         if (typeof node === 'string') {
           return node.split(/(\s+)/).map((w, i) => {
+            if (w === '') return null;
             if (/^\s+$/.test(w)) return w;
             idx++;
             return <span key={`${key}-${i}`} className="word" style={{ transitionDelay: `${baseDelay + idx * perWordDelay}ms` }}>{w}</span>;
@@ -863,13 +1395,12 @@
         <section className="section-pad" id="servicos">
           <div className="container">
             <div className="reveal">
-              <div className="section-label"><span className="tri" aria-hidden="true" />Serviços</div>
+              <div className="section-label">Serviços</div>
               <h2 className="section-title">Duas frentes. Um time só entre quem atrai e quem converte.</h2>
               <p className="section-sub">Cada projeto roda com estratégia e site falando a mesma língua. Você não precisa intermediar nada.</p>
             </div>
             <div className="services-grid">
-              <article className="service-card reveal scroll-through-l" data-delay="1">
-                <div className="number">01 — MÍDIA</div>
+              <article className="service-card" data-exit="left">
                 <div className="visual">
                   <div className="svc-traffic">
                     {[22,38,30,52,45,68,60,82,95,88,72,64].map((h,i) => (
@@ -885,8 +1416,7 @@
                   <li>Bid strategy</li><li>Reuniões quinzenais</li>
                 </ul>
               </article>
-              <article className="service-card reveal scroll-through-r" data-delay="2">
-                <div className="number">02 — SITE</div>
+              <article className="service-card" data-exit="right">
                 <div className="visual">
                   <div className="svc-site">
                     <div className="browser">
@@ -926,14 +1456,13 @@
         <section className="section-pad dark-section" id="processo">
           <div className="container">
             <div className="reveal">
-              <div className="section-label"><span className="tri"/>Processo</div>
               <h2 className="section-title">Como a Norte trabalha do contato à recorrência.</h2>
               <p className="section-sub">Sem proposta genérica. Sem onboarding de dois meses. Você assina e em 14 dias as primeiras campanhas estão no ar.</p>
             </div>
             <div className="process-grid">
               {STEPS.map((s,i) => (
-                <div key={s.n} className="process-step reveal scroll-through" data-delay={i+1}>
-                  <div className="num">{s.n}</div>
+                <div key={s.n} className="process-step">
+                  <div className="step-tri" aria-hidden="true" />
                   <h4>{s.t}</h4>
                   <p>{s.d}</p>
                   <div className="when">{s.w}</div>
@@ -960,34 +1489,34 @@
     ];
     function Cases() {
       return (
-        <section className="section-pad" id="cases">
-          <div className="container">
-            <div className="reveal" style={{display:'flex',justifyContent:'space-between',alignItems:'end',flexWrap:'wrap',gap:24}}>
-              <div>
-                <div className="section-label"><span className="tri"/>Cases</div>
-                <h2 className="section-title" style={{maxWidth:760,marginBottom:16}}>Números fazem sentido com contexto.</h2>
-                <p className="section-sub">Três contas. Três realidades diferentes. O que conecta é o método.</p>
+        <section className="numbers-section" id="cases">
+          <div className="numbers-card">
+            <div className="numbers-card-inner">
+              <div className="reveal" style={{display:'flex',justifyContent:'space-between',alignItems:'end',flexWrap:'wrap',gap:24}}>
+                <div>
+                  <h2 className="section-title" style={{maxWidth:760,marginBottom:16}}>Números fazem sentido com contexto.</h2>
+                  <p className="section-sub">Três contas. Três realidades diferentes. O que conecta é o método.</p>
+                </div>
+                <a href="#contato" className="btn secondary reveal" data-delay="2">
+                  Quero um diagnóstico
+                  <span className="btn-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                </a>
               </div>
-              <a href="#contato" className="btn secondary reveal" data-delay="2">
-                Quero um diagnóstico
-                <span className="btn-arrow"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
-              </a>
-            </div>
-            <div className="cases-grid">
-              {CASES.map((c,i) => {
-                const sc = i===0?'scroll-through-l':i===CASES.length-1?'scroll-through-r':'scroll-through';
-                return (
-                  <article key={i} className={`case-card reveal ${sc}`} data-delay={i+1}>
-                    <div className="meta-row"><span>{c.seg}</span><span>{c.period}</span></div>
-                    <div className="stat">{c.big}</div>
-                    <div className="stat-label">{c.label}</div>
-                    <div className="case-footer">
-                      <div className="name">{c.name}</div>
-                      <div className="desc">{c.desc}</div>
-                    </div>
-                  </article>
-                );
-              })}
+              <div className="cases-grid">
+                {CASES.map((c,i) => {
+                  return (
+                    <article key={i} className="case-card">
+                      <div className="meta-row"><span>{c.seg}</span><span>{c.period}</span></div>
+                      <div className="stat">{c.big}</div>
+                      <div className="stat-label">{c.label}</div>
+                      <div className="case-footer">
+                        <div className="name">{c.name}</div>
+                        <div className="desc">{c.desc}</div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </section>
@@ -1016,16 +1545,15 @@
     ];
     function Stack() {
       return (
-        <section className="section-pad" id="stack" style={{paddingTop:0}}>
+        <section className="section-pad" id="stack" style={{paddingTop:160}}>
           <div className="container">
             <div className="reveal">
-              <div className="section-label"><span className="tri"/>Stack</div>
               <h2 className="section-title">Ferramentas que a gente domina. Resto, a gente avisa antes.</h2>
               <p className="section-sub">Stack curto. Cada decisão de ferramenta é justificada. Você sabe exatamente onde cada real está rodando.</p>
             </div>
             <div className="stack-grid">
               {STACK.map((s,i) => (
-                <div key={s.name} className="stack-cell reveal scroll-through" data-delay={(i%4)+1}>
+                <div key={s.name} className="stack-cell">
                   <div className="icon">{ICONS[s.icon]}</div>
                   <div className="name">{s.name}</div>
                   <div className="cat">{s.cat}</div>
@@ -1042,14 +1570,13 @@
     // ============================================================
     function Sobre() {
       return (
-        <section className="section-pad" id="sobre" style={{paddingTop:64}}>
+        <section className="section-pad" id="sobre" style={{paddingTop:64, position:'relative', overflow:'hidden'}}>
           <div className="container">
             <div className="about-grid">
               <div className="reveal sticky-aside">
-                <div className="section-label"><span className="tri"/>Sobre</div>
                 <p className="about-statement">
                   <SplitWords perWordDelay={50}>
-                    Fazemos o que <em>uma agência de verdade</em> deveria fazer: tratar o seu negócio como se fosse o nosso.
+                    Fazemos o que{' '}<em>uma agência de verdade</em>{' '}deveria fazer: tratar o seu negócio como se fosse o nosso.
                   </SplitWords>
                 </p>
               </div>
@@ -1066,6 +1593,13 @@
                 ))}
               </div>
             </div>
+          </div>
+          <div className="sobre-video-wrap" aria-hidden="true">
+            <video
+              className="sobre-deco-video"
+              src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260508_064209_0cb7d815-ff61-4caa-a6d5-bbff145ab272.mp4"
+              autoPlay muted playsInline loop
+            />
           </div>
         </section>
       );
@@ -1084,14 +1618,12 @@
         <section className="section-pad" id="depoimentos" style={{paddingTop:0}}>
           <div className="container">
             <div className="reveal">
-              <div className="section-label"><span className="tri"/>Depoimentos</div>
               <h2 className="section-title" style={{maxWidth:760}}>O que os clientes contam quando ninguém pede.</h2>
             </div>
             <div className="testimonials-grid">
               {TESTS.map((t,i) => {
-                const sc = i===0?'scroll-through-l':i===TESTS.length-1?'scroll-through-r':'scroll-through';
                 return (
-                  <article key={i} className={`testimonial reveal ${sc}`} data-delay={i+1}>
+                  <article key={i} className="testimonial">
                     <div>
                       <span className="quote-mark">"</span>
                       <p className="quote">{t.q}</p>
@@ -1159,9 +1691,7 @@
           <div className="container cta-final-content">
             <div className="cta-final-inner">
               <div className="reveal">
-                <div className="section-label" style={{color:'var(--color-laranja)'}}>
-                  <span className="tri"/>Próximo passo
-                </div>
+                <div className="section-label" style={{color:'var(--color-laranja)'}}>Próximo passo</div>
                 <h2><SplitWords perWordDelay={80}>Pronto pra achar o <span className="accent">norte?</span></SplitWords></h2>
                 <p style={{fontSize:17,lineHeight:1.55,color:'var(--color-neutro-300)',margin:'24px 0 0',maxWidth:480}}>
                   Conta da última campanha, site atual, ticket médio. A gente devolve um diagnóstico escrito antes de qualquer proposta. Sem custo, sem cobrança escondida.
@@ -1266,6 +1796,12 @@
     // ============================================================
     function App() {
       useReveal();
+      useServiceCardParallax();
+      useProcessParallax();
+      useNumbersCard();
+      useCasesCardsExit();
+      useTestimonialsParallax();
+      useStackParallax();
       const tweaks = { cinematic: 'on', animations: 'on' };
       return (
         <React.Fragment>
@@ -1275,8 +1811,10 @@
             <Hero tweaks={tweaks} />
             <Marquee />
             <Servicos />
-            <Processo />
-            <Cases />
+            <div className="overlap-stage">
+              <Processo />
+              <Cases />
+            </div>
             <Stack />
             <Sobre />
             <Depoimentos />
